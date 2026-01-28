@@ -1,0 +1,11 @@
+# Folder environments
+.venv/
+
+# Python cache
+__pycache__/
+
+# Processed data files
+data/processed/
+
+# PDF files
+*.pdf
