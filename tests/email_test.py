@@ -3,6 +3,8 @@
 import pandas as pd
 from src.clean_data import _fix_email
 
+# -----
+
 class TestFixEmail:
     """Tests for the _fix_email function."""
 
