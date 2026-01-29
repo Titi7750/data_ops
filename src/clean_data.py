@@ -1,6 +1,7 @@
 """ Module to clean and normalize customer data across multiple dataframes. """
 
 import os
+import pycountry
 import pandas as pd
 
 # -----
@@ -78,10 +79,15 @@ def _fix_email(param_dataframe: pd.DataFrame, param_specific_fix: str = None) ->
 # -----
 
 def _fix_country(param_dataframe: pd.DataFrame, param_specific_mappings: dict = None) -> pd.DataFrame:
-    """ Fix country column: standardize format. """
+    """ Fix country column: standardize format and validate country codes. """
+
+    valid_country_codes = {country.alpha_2 for country in pycountry.countries}
 
     if param_specific_mappings:
         for old, new in param_specific_mappings.items():
+            if new.upper() not in valid_country_codes:
+                raise ValueError(f"Invalid country code in mapping: '{new}'.")
+
             param_dataframe["country"] = param_dataframe["country"].replace(old, new)
 
     param_dataframe["country"] = param_dataframe["country"].str.upper()
@@ -93,6 +99,7 @@ def _fix_country(param_dataframe: pd.DataFrame, param_specific_mappings: dict = 
 def _fix_purchase_amount(param_dataframe: pd.DataFrame) -> pd.DataFrame:
     """ Ensure purchase amounts are non-negative. """
 
+    param_dataframe["last_purchase_amount"] = param_dataframe["last_purchase_amount"].astype(float)
     param_dataframe["last_purchase_amount"] = param_dataframe["last_purchase_amount"].apply(
         lambda price: price if price >= 0.0 else 0.0
     )
@@ -128,8 +135,13 @@ def clean_customers_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.Da
         df3: Third customers dataframe
 
     Returns:
-        tuple: Three cleaned dataframes
+        tuple: Three cleaned dataframes with deletion counts
     """
+
+    # Store original row counts
+    original_count1 = len(param_dataframe1)
+    original_count2 = len(param_dataframe2)
+    original_count3 = len(param_dataframe3)
 
     # Clean Dataframe 1
     df1 = param_dataframe1.copy()
@@ -168,6 +180,11 @@ def clean_customers_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.Da
     df3["loyalty_tier"] = df3["loyalty_tier"].replace("UNKNOWN", "BRONZE")
     df3 = _drop_duplicate_emails(df3)
 
+    # Store deletion counts in dataframe attributes
+    df1.attrs["rows_deleted"] = original_count1 - len(df1)
+    df2.attrs["rows_deleted"] = original_count2 - len(df2)
+    df3.attrs["rows_deleted"] = original_count3 - len(df3)
+
     return df1, df2, df3
 
 # -----
@@ -175,6 +192,7 @@ def clean_customers_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.Da
 def save_cleaned_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.DataFrame, param_dataframe3: pd.DataFrame) -> None:
     """
     Save cleaned customer dataframes to processed CSV files.
+    Displays the number of rows deleted during cleaning for each file.
 
     Args:
         param_dataframe1: First cleaned customers dataframe
@@ -191,6 +209,8 @@ def save_cleaned_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.DataF
         ),
         index=False
     )
+    rows_deleted_1 = param_dataframe1.attrs.get("rows_deleted", 0)
+    print(f"Fichier 1: {rows_deleted_1} ligne(s) supprimée(s)")
 
     param_dataframe2.to_csv(
         os.path.join(
@@ -201,6 +221,8 @@ def save_cleaned_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.DataF
         ),
         index=False
     )
+    rows_deleted_2 = param_dataframe2.attrs.get("rows_deleted", 0)
+    print(f"Fichier 2: {rows_deleted_2} ligne(s) supprimée(s)")
 
     param_dataframe3.to_csv(
         os.path.join(
@@ -211,5 +233,7 @@ def save_cleaned_data(param_dataframe1: pd.DataFrame, param_dataframe2: pd.DataF
         ),
         index=False
     )
+    rows_deleted_3 = param_dataframe3.attrs.get("rows_deleted", 0)
+    print(f"Fichier 3: {rows_deleted_3} ligne(s) supprimée(s)")
 
     return None
