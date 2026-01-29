@@ -2,7 +2,6 @@
 
 import os
 import pandas as pd
-import numpy as np
 
 # -----
 
@@ -37,9 +36,9 @@ class TestDataQuality:
 
         base_path = os.path.join(os.getcwd(), "data", "processed")
 
-        assert os.path.exists(os.path.join(base_path, "customers_cleaned.csv"))
-        assert os.path.exists(os.path.join(base_path, "customers_cleaned2.csv"))
-        assert os.path.exists(os.path.join(base_path, "customers_cleaned3.csv"))
+        assert os.path.exists(os.path.join(base_path, "customers_cleaned.csv")), "customers_cleaned.csv does not exist."
+        assert os.path.exists(os.path.join(base_path, "customers_cleaned2.csv")), "customers_cleaned2.csv does not exist."
+        assert os.path.exists(os.path.join(base_path, "customers_cleaned3.csv")), "customers_cleaned3.csv does not exist."
 
         return None
 
@@ -50,9 +49,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        assert len(df1) > 0
-        assert len(df2) > 0
-        assert len(df3) > 0
+        assert len(df1) > 0, "df1 is empty."
+        assert len(df2) > 0, "df2 is empty."
+        assert len(df3) > 0, "df3 is empty."
 
         return None
 
@@ -65,7 +64,7 @@ class TestDataQuality:
         required_cols = ["customer_id", "full_name", "email", "signup_date", "country", "age", "last_purchase_amount", "loyalty_tier"]
 
         for col in required_cols:
-            assert col in df1.columns
+            assert col in df1.columns, f"Column {col} missing in df1."
 
         return None
 
@@ -78,7 +77,7 @@ class TestDataQuality:
         required_cols = ["customer_id", "full_name", "email", "signup_date", "country", "age", "last_purchase_amount", "loyalty_tier"]
 
         for col in required_cols:
-            assert col in df2.columns
+            assert col in df2.columns, f"Column {col} missing in df2."
 
         return None
 
@@ -91,7 +90,7 @@ class TestDataQuality:
         required_cols = ["customer_id", "full_name", "email", "signup_date", "country", "age", "last_purchase_amount", "loyalty_tier"]
 
         for col in required_cols:
-            assert col in df3.columns
+            assert col in df3.columns, f"Column {col} missing in df3."
 
         return None
 
@@ -102,9 +101,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
-            assert df["age"].min() >= 16
-            assert df["age"].max() <= 99
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
+            assert df["age"].min() >= 16, f"Age below 16 found in {name}."
+            assert df["age"].max() <= 99, f"Age above 99 found in {name}."
 
         return None
 
@@ -115,8 +114,8 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
-            assert df["age"].isnull().sum() == 0
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
+            assert df["age"].isnull().sum() == 0, f"There are null values in age of {name}."
 
         return None
 
@@ -127,8 +126,8 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
-            assert pd.api.types.is_datetime64_any_dtype(df["signup_date"])
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
+            assert pd.api.types.is_datetime64_any_dtype(df["signup_date"]), f"signup_date is not in datetime format in {name}."
 
         return None
 
@@ -139,8 +138,8 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
-            assert df["signup_date"].isnull().sum() == 0
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
+            assert df["signup_date"].isnull().sum() == 0, f"There are null values in signup_date of {name}."
 
         return None
 
@@ -151,9 +150,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             invalid_emails = df[~df["email"].str.contains("@", na=False)]
-            assert len(invalid_emails) == 0
+            assert len(invalid_emails) == 0, f"Some emails do not contain '@' in {name}."
 
         return None
 
@@ -164,9 +163,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             duplicates = df["email"].duplicated().sum()
-            assert duplicates == 0
+            assert duplicates == 0, f"There are duplicate emails in {name}."
 
         return None
 
@@ -177,9 +176,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             lowercase = df[df["country"].str.contains("[a-z]", na=False, regex=True)]
-            assert len(lowercase) == 0
+            assert len(lowercase) == 0, f"There are lowercase country codes in {name}."
 
         return None
 
@@ -190,9 +189,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             negative = (df["last_purchase_amount"] < 0).sum()
-            assert negative == 0
+            assert negative == 0, f"There are negative values in last_purchase_amount of {name}."
 
         return None
 
@@ -203,9 +202,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             nulls = df["last_purchase_amount"].isnull().sum()
-            assert nulls == 0
+            assert nulls == 0, f"There are null values in last_purchase_amount of {name}."
 
         return None
 
@@ -217,7 +216,7 @@ class TestDataQuality:
         _, _, df3 = self.load_cleaned_data()
 
         unknown_count = (df3["loyalty_tier"] == "UNKNOWN").sum()
-        assert unknown_count == 0
+        assert unknown_count == 0, "There are UNKNOWN values in loyalty_tier of df3."
 
         return None
 
@@ -228,9 +227,9 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             nulls = df["email"].isnull().sum()
-            assert nulls == 0
+            assert nulls == 0, f"There are null emails in {name}."
 
         return None
 
@@ -241,8 +240,8 @@ class TestDataQuality:
 
         df1, df2, df3 = self.load_cleaned_data()
 
-        for df in [df1, df2, df3]:
+        for df, name in [(df1, "df1"), (df2, "df2"), (df3, "df3")]:
             invalid = df[~df["email"].str.contains(r"\w+@\w+\.\w+", na=False, regex=True)]
-            assert len(invalid) == 0
+            assert len(invalid) == 0, f"Some emails do not contain a valid domain in {name}."
 
         return None
