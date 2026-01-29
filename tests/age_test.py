@@ -9,7 +9,7 @@ from src.clean_data import _fix_age
 class TestFixAge:
     """ Tests for the _fix_age function. """
 
-    def test_fix_age_basic(self):
+    def test_fix_age_basic(self) -> None:
         """ Test basic age cleaning without invalid values. """
 
         dataframe = pd.DataFrame({"age": [25, 30, 45]})
@@ -17,9 +17,11 @@ class TestFixAge:
 
         assert result["age"].tolist() == [25, 30, 45]
 
+        return None
+
     # -----
 
-    def test_fix_age_with_invalid_values(self):
+    def test_fix_age_with_invalid_values(self) -> None:
         """ Test age cleaning with invalid values replacement. """
 
         dataframe = pd.DataFrame({"age": [25, "invalid", 45, "unknown"]})
@@ -29,9 +31,11 @@ class TestFixAge:
         assert result["age"][1] == 16
         assert result["age"][3] == 16
 
+        return None
+
     # -----
 
-    def test_fix_age_boundary_values(self):
+    def test_fix_age_boundary_values(self) -> None:
         """ Test age boundaries (16-99). """
 
         dataframe = pd.DataFrame({"age": [15, 16, 99, 100, 150]})
@@ -43,9 +47,11 @@ class TestFixAge:
         assert result["age"][3] == 16
         assert result["age"][4] == 16
 
+        return None
+
     # -----
 
-    def test_fix_age_with_na_values(self):
+    def test_fix_age_with_na_values(self) -> None:
         """ Test age cleaning with NA/NaN values. """
 
         dataframe = pd.DataFrame({"age": [25, np.nan, 35, None]})
@@ -53,3 +59,5 @@ class TestFixAge:
 
         assert result["age"][1] == 16
         assert result["age"][3] == 16
+
+        return None
