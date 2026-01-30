@@ -1,7 +1,7 @@
 """ File for running the full data processing pipeline. """
 
-from load_data import load_customers_data
-from clean_data import clean_customers_data, save_cleaned_data
+from src.load_data import load_customers_data
+from src.clean_data import clean_customers_data, save_cleaned_data
 
 # -----
 

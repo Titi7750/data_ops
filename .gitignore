@@ -10,3 +10,7 @@ data/processed/
 
 # PDF files
 *.pdf
+
+# Log files
+logs/
+*.log
