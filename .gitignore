@@ -14,3 +14,6 @@ data/processed/
 # Log files
 logs/
 *.log
+
+# Airflow specific
+airflow.cfg
